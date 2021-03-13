@@ -6,18 +6,20 @@ export default function Home() {
 
     const [img, setImg] = useState();
 
-    const yeet = (event) =>{
+    const uploadHandler = (event) =>{
         setImg(URL.createObjectURL(event.target.files[0]));
     }
 
     return (
         <div className={styles.container}>
             <Head>
-                <title>Create Next App</title>
+                <title>Pixel Palette</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
+
             <h1>P I X E L P A L E T T E </h1>
-            <input type="file" id="upload"  onChange={yeet} style={{display:"none"}}/>
+
+            <input type="file" id="upload"  onChange={uploadHandler} style={{display:"none"}}/>
             <button> <label for="upload">Select file</label> </button>
             <img src={img} width="500"/>
         </div>

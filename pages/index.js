@@ -42,7 +42,7 @@ export default function Home() {
     useEffect(()=>{
         if(image == null) return;
         const ctx = canvas.current.getContext('2d');
-        //ctx.putImageData(scaleRes(imageData, res),0,0);
+        ctx.putImageData(scaleRes(imageData, res),0,0);
     },[res]);
 
     return (

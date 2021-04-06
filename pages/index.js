@@ -37,13 +37,12 @@ export default function Home() {
         ctx.drawImage(image,0,0,500,image.height*(500/image.width));
         const imgData = ctx.getImageData(0,0,500,image.height*(500/image.width));
         setImageData(imgData);
-        scaleRes(imgData);
     },[image]);
 
     useEffect(()=>{
         if(image == null) return;
         const ctx = canvas.current.getContext('2d');
-        ctx.putImageData(scaleRes(imageData, res),0,0);
+        //ctx.putImageData(scaleRes(imageData, res),0,0);
     },[res]);
 
     return (

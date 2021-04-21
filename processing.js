@@ -2,15 +2,28 @@ export function scaleRes(imageData, res){
     // convert imageData to 2d array of rgb tuples
     var pixelArr = unpack(imageData);
     
+    const nHeight = parseInt(pixelArr.length*(res/100))
+    const nWidth = parseInt(pixelArr[0].length*(res/100))
+    
+    const side = parseInt(pixelArr.length/nHeight)
+    console.log(pixelArr.length,nHeight, side);
+    var a=0;
     // scale res
-    for(var r=0;r<pixelArr.length;r+=1){
-        for(var c=0;c<pixelArr[0].length;c+=1){
-            pixelArr[r][c] = [255,255,0];
+    for(var r=0;r<nHeight;r++){
+        for(var c=0;c<nWidth;c++){
+            const pivot = pixelArr[r*side][c*side];
+            for(var rr=0;rr<side;rr++){
+                for(var cc=0;cc<side;cc++){
+                    pixelArr[r*side+rr][c*side+cc] = pivot;
+                }
+            }
         }
     }
+    console.log(a)
 
     // convert pixelArr back to single dimensional array
     pack(pixelArr,imageData);
+    console.log("done");
     return imageData;
 }
 

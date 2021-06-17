@@ -8,7 +8,7 @@ Web-based image pixelator with colour palette selection for pixel artists and ga
 
 Built with React, Next.js, and Material Ui. 
 
-Using this project as an opportunity to learn Next.js and Material UI. So far, they are awesome libraries that make everything so much easier!
+Using this project as an opportunity to learn Next.js and Material UI. So far, they are awesome libraries that make writing React apps so much faster!
 
 I have a processing.js file found at the root path that handles all pixel manipulation logic. I will admit that working with Javascript's canvas and built-in ImageData class is more annoying than I anticipated. It's a great learning opportunity though and I think I have a deeper understanding of Javascript's core features because of it.
 

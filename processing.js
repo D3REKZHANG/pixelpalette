@@ -1,4 +1,4 @@
-export function scaleRes(imageData, res){
+export function scaleRes(ctx, imageData, res){
     // convert imageData to 2d array of rgb tuples
     var pixelArr = unpack(imageData);
     
@@ -6,7 +6,6 @@ export function scaleRes(imageData, res){
     const nWidth = parseInt(pixelArr[0].length*(res/100))
     
     const side = parseInt(pixelArr.length/nHeight)
-    console.log(pixelArr.length,nHeight, side);
     var a=0;
     // scale res
     for(var r=0;r<nHeight;r++){
@@ -19,12 +18,9 @@ export function scaleRes(imageData, res){
             }
         }
     }
-    console.log(a)
 
     // convert pixelArr back to single dimensional array
-    pack(pixelArr,imageData);
-    console.log("done");
-    return imageData;
+    return pack(ctx, pixelArr,imageData);
 }
 
 function unpack(imageData){
@@ -42,15 +38,17 @@ function unpack(imageData){
     return pixelArr;
 }
 
-function pack(pixelArr,imageData){
+function pack(ctx, pixelArr,imageData){
+    const temp = ctx.createImageData(imageData.width, imageData.height);
     var w = imageData.width;
     for(var i=0;i<pixelArr.length;i+=1){
         for(var j=0;j<pixelArr[0].length;j+=1){
             var base = (i*w+j)*4
-            imageData.data[base] = pixelArr[i][j][0]
-            imageData.data[base+1] = pixelArr[i][j][1]
-            imageData.data[base+2] = pixelArr[i][j][2]
-            imageData.data[base+3] = 255;
+            temp.data[base] = pixelArr[i][j][0]
+            temp.data[base+1] = pixelArr[i][j][1]
+            temp.data[base+2] = pixelArr[i][j][2]
+            temp.data[base+3] = 255;
         }
     }
+    return temp;
 }

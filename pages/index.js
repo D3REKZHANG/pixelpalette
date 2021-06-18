@@ -12,7 +12,7 @@ export default function Home() {
     const [imageData, setImageData] = useState(null);
 
     // options
-    const [res, setRes] = useState(100);
+    const [scale, setScale] = useState(1);
 
     const canvas = useRef(null);
 
@@ -47,8 +47,8 @@ export default function Home() {
     useEffect(()=>{
         if(image == null) return;
         const ctx = canvas.current.getContext('2d');
-        ctx.putImageData(scaleRes(ctx, imageData, res),0,0);
-    },[res]);
+        ctx.putImageData(scaleRes(ctx, imageData, scale),0,0);
+    },[scale]);
 
     return (
         <div className={styles.container}>
@@ -65,22 +65,16 @@ export default function Home() {
             <div style={{visibility:(image===null)?"hidden":"visible", width:"350px", margin:"30px"}}>
                 <Grid container spacing={2} alignItems="center">
                     <Grid item>
-                        <Typography> Resolution </Typography>
+                        <Typography> Scale </Typography>
                     </Grid>
                     <Grid item xs>
                         <Slider
-                            value={typeof res === 'number' ? res : 0}
-                            onChange={(e, newval) => setRes(newval)}
-                            aria-labelledby="input-slider"
-                            defaultValue = {100} step = {1} min={1} max={100}
-                        />
-                    </Grid>
-                    <Grid item>
-                        <Input
-                            style={{width: 30}}
-                            value={res}
-                            margin="dense"
-                            onChange={(e)=>setRes(e.target.value === '' ? '' : Number(e.target.value.slice(0,-1)))}
+                            value={typeof scale === 'number' ? scale : 0}
+                            onChange={(e, newval) => setScale(newval)}
+                            aria-labelledby="discrete-slider"
+                            valueLabelDisplay="auto"
+                            marks
+                            defaultValue = {1} step = {1} min={1} max={6}
                         />
                     </Grid>
                 </Grid>

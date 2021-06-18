@@ -1,22 +1,16 @@
-export function scaleRes(ctx, imageData, scale){
+export function scalePixels(ctx, imageData, scale, style){
     // convert imageData to 2d array of rgb tuples
     var pixelArr = unpack(imageData);
-    
-    // scale res
-    for(var r=0;r<imageData.height;r+=scale){
-        for(var c=0;c<imageData.width;c+=scale){
-            const pivot = pixelArr[r][c];
-            for(var rr=0;rr<scale;rr++){
-                for(var cc=0;cc<scale;cc++){
-                    if(r+rr < imageData.height && c+cc < imageData.width)
-                        pixelArr[r+rr][c+cc] = pivot;
-                }
-            }
-        }
+
+    var result;
+    let w = imageData.width, h = imageData.height;
+    switch(style){
+        case "block": result = block(pixelArr, scale, w, h); break;
+        case "average": result = average(pixelArr, scale, w, h); break;
     }
 
     // convert pixelArr back to single dimensional array
-    return pack(ctx, pixelArr,imageData);
+    return pack(ctx, result, imageData);
 }
 
 function unpack(imageData){
@@ -47,4 +41,111 @@ function pack(ctx, pixelArr,imageData){
         }
     }
     return temp;
+}
+
+function block(pixels, scale, w, h){
+    // Replaces all pixels within a block with top left pixel
+    var pixelArr = pixels;
+    for(var r=0;r<h;r+=scale){
+        for(var c=0;c<w;c+=scale){
+            let cnt = 0, red = 0, green = 0, blue = 0;
+            const pivot = [0,0,0];
+            const half = parseInt(scale/2, 10);
+
+            if(scale%2 == 1){
+                pivot = pixelArr[Math.min(r+half, h-1)][Math.min(c+half, w-1)]
+            } else {
+                for(var rr=half-1;rr<=half;rr++){
+                    for(var cc=half-1;cc<=half;cc++){
+                        if(r+rr < h && c+cc < w){
+                            red += pixelArr[r+rr][c+cc][0];
+                            blue += pixelArr[r+rr][c+cc][1];
+                            green += pixelArr[r+rr][c+cc][2];
+                            cnt++;
+                        }
+                    }
+                }
+                pivot = [red/cnt, blue/cnt, green/cnt];
+            }
+
+            for(var rr=0;rr<scale;rr++){
+                for(var cc=0;cc<scale;cc++){
+                    if(r+rr < h && c+cc < w){
+                        pixelArr[r+rr][c+cc][0] = pivot[0];
+                        pixelArr[r+rr][c+cc][1] = pivot[1];
+                        pixelArr[r+rr][c+cc][2] = pivot[2];
+                    }
+                }
+            }
+        }
+    }
+    return pixels;
+}
+
+function average(pixels, scale, w, h){
+    // Replaces all pixels within a block with top left pixel
+    var pixelArr = pixels;
+    for(var r=0;r<h;r+=scale){
+        for(var c=0;c<w;c+=scale){
+            let cnt = 0, red = 0, green = 0, blue = 0;
+            for(var rr=0;rr<scale;rr++){
+                for(var cc=0;cc<scale;cc++){
+                    if(r+rr < h && c+cc < w){
+                        red += pixelArr[r+rr][c+cc][0];
+                        blue += pixelArr[r+rr][c+cc][1];
+                        green += pixelArr[r+rr][c+cc][2];
+                        cnt++;
+                    }
+                }
+            }
+            for(var rr=0;rr<scale;rr++){
+                for(var cc=0;cc<scale;cc++){
+                    if(r+rr < h && c+cc < w){
+                        pixelArr[r+rr][c+cc][0] = red/cnt;
+                        pixelArr[r+rr][c+cc][1] = blue/cnt;
+                        pixelArr[r+rr][c+cc][2] = green/cnt;
+                    }
+                }
+            }
+        }
+    }
+    return pixels;
+}
+
+function fastAverage(pixels, scale, w, h){
+    // Replaces all pixels within a block with top left pixel
+    var pixelArr = pixels;
+    for(var r=0;r<h;r+=scale){
+        for(var c=0;c<w;c+=scale){
+            let cnt = 0, red = 0, green = 0, blue = 0;
+            const pivot = [0,0,0];
+
+            if(scale%2 == 1){
+                pivot = pixelArr[r+scale/2][c+scale/2]
+            } else {
+                for(var rr=scale/2-1;rr<=scale/2;rr++){
+                    for(var cc=scale/2-1;cc<=scale/2;cc++){
+                        if(r+rr < h && c+cc < w){
+                            red += pixelArr[r+rr][c+cc][0];
+                            blue += pixelArr[r+rr][c+cc][1];
+                            green += pixelArr[r+rr][c+cc][2];
+                            cnt++;
+                        }
+                    }
+                }
+                pivot = [red/cnt, blue/cnt, green/cnt];
+            }
+
+            for(var rr=0;rr<scale;rr++){
+                for(var cc=0;cc<scale;cc++){
+                    if(r+rr < h && c+cc < w){
+                        pixelArr[r+rr][c+cc][0] = pivot[0];
+                        pixelArr[r+rr][c+cc][1] = pivot[1];
+                        pixelArr[r+rr][c+cc][2] = pivot[2];
+                    }
+                }
+            }
+        }
+    }
+    return pixels;
 }

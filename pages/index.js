@@ -12,7 +12,6 @@ export default function Home() {
 
     // STATES AND REFS
     const [image, setImage] = useState(null);
-    const [imageData, setImageData] = useState(null);
     const [cache, setCache] = useState([]);
 
     const [settingsOpen, setSettingsOpen] = useState(false);
@@ -43,8 +42,8 @@ export default function Home() {
 
     const handleStyleChange = (e) => setScaleStyle(e.target.value);
 
-    const handleSettingsClick = (e) => setSettingsOpen(true);
-    const handleSettingsClose = (e) => setSettingsOpen(false);
+    const handleSettingsClick = () => setSettingsOpen(true);
+    const handleSettingsClose = () => setSettingsOpen(false);
 
 
     // USE EFFECT HOOKS
@@ -54,7 +53,6 @@ export default function Home() {
         const ctx = canvas.current.getContext('2d');
         ctx.drawImage(image,0,0,500,image.height*(500/image.width));
         const imgData = ctx.getImageData(0,0,500,image.height*(500/image.width));
-        setImageData(imgData);
 
         loading = true;
         // cache 
@@ -73,10 +71,6 @@ export default function Home() {
         ctx.putImageData(cache[scaleStyle][scale],0,0);
     },[scale, scaleStyle]);
 
-    
-    const cacheData = (imgData, style) => {
-        const ctx = canvas.current.getContext('2d');
-    }
 
     return (
         <div className={styles.container}>

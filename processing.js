@@ -57,12 +57,11 @@ function block(pixels, scale, w, h){
             } else {
                 for(var rr=half-1;rr<=half;rr++){
                     for(var cc=half-1;cc<=half;cc++){
-                        if(r+rr < h && c+cc < w){
-                            red += pixelArr[r+rr][c+cc][0];
-                            blue += pixelArr[r+rr][c+cc][1];
-                            green += pixelArr[r+rr][c+cc][2];
+                            const pixel = pixelArr[Math.min(r+rr, h-1)][Math.min(c+cc, w-1)]
+                            red += pixel[0];
+                            blue += pixel[1];
+                            green += pixel[2];
                             cnt++;
-                        }
                     }
                 }
                 pivot = [red/cnt, blue/cnt, green/cnt];

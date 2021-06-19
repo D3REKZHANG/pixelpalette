@@ -15,7 +15,7 @@ export default function Home() {
     const [cache, setCache] = useState([]);
 
     const [settingsOpen, setSettingsOpen] = useState(false);
-    var loading = false;
+    const [loading, setLoading] = useState(false);
 
     // options
     const [scaleStyle, setScaleStyle] = useState(0);
@@ -28,6 +28,7 @@ export default function Home() {
     
     const handleUpload = (e) => {
         const reader = new FileReader();
+        setLoading(true);
         reader.onload = () => {
             if(reader.readyState === 2){
                 const img = new Image;
@@ -37,7 +38,8 @@ export default function Home() {
                 }
             }
         }
-        reader.readAsDataURL(e.target.files[0])
+        if(e.target.length > 0)
+            reader.readAsDataURL(e.target.files[0])
     };
 
     const handleStyleChange = (e) => setScaleStyle(e.target.value);
@@ -54,14 +56,13 @@ export default function Home() {
         ctx.drawImage(image,0,0,500,image.height*(500/image.width));
         const imgData = ctx.getImageData(0,0,500,image.height*(500/image.width));
 
-        loading = true;
         // cache 
         const arr = [[0], [0]];
         for (var i=1;i<=10;i++) {
             arr[0].push(scalePixels(ctx, imgData, i, "block"));
             arr[1].push(scalePixels(ctx, imgData, i, "average"));
         }
-        loading = false;
+        setLoading(false);
         setCache(arr);
     },[image]);
 
@@ -81,11 +82,15 @@ export default function Home() {
 
             <h1>P I X E L P A L E T T E </h1>
             <input type="file" id="upload" accept="image/*"onChange={handleUpload} style={{display:"none"}}/>
-            <Button color="primary"> <label for="upload">Select file</label> </Button>
+            <Button variant="outlined" color="primary"> <label for="upload">Select file</label> </Button>
             <LoadingOverlay
                 active={loading}
                 spinner={<CircularProgress />}
                 styles={{
+                    wrapper: (base) => ({
+                        ...base,
+                        margin: '20px'
+                    }),
                     overlay: (base) => ({
                         ...base,
                         background: 'rgba(0, 0, 0, 0.3)'
@@ -112,6 +117,11 @@ export default function Home() {
                     </Grid>
                     <Grid item>
                         <IconButton color="primary" onClick={handleSettingsClick}> <SettingsIcon /> </IconButton>
+                    </Grid>
+                </Grid>
+                <Grid container spacing={2} alignItems="center" justify="center">
+                    <Grid item>
+                        <Button variant="outlined" color="primary">Choose Palette!</Button>
                     </Grid>
                 </Grid>
             </div>

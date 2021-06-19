@@ -110,3 +110,37 @@ function average(pixels, scale, w, h){
     }
     return pixels;
 }
+
+export function colourMatch(ctx, imageData, palette){
+    // convert imageData to 2d array of rgb tuples
+    var pixelArr = unpack(imageData);
+
+    var result;
+    let w = imageData.width, h = imageData.height;
+
+    for(var r=0;r<h;r++){
+        for(var c=0;c<w;c++){
+            pixel = pixelArr[r][c];
+
+            bestMatch = palette[0];
+            bestDist = distance(palette[0], pixel);
+
+            palette.forEach((colour)=>{
+                const dist = distance(colour, pixel);
+                if(dist < bestDist){
+                    bestDist = dist;
+                    bestMatch = colour;
+                }
+            });
+            
+            pixelArr[r][c] = bestMatch;
+        }
+    }
+
+    // convert pixelArr back to single dimensional array
+    return pack(ctx, result, imageData);
+}
+
+function distance(c1,c2){
+    return (c2[0] - c1[0])**2 + (c2[1] - c1[1])**2 + (c2[2] - c1[2])**2;
+}

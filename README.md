@@ -2,7 +2,7 @@
 
 Web-based image pixelator with colour palette selection for pixel artists and game developers
 
-![demo](https://github.com/D3REKZHANG/pixelpalette/blob/master/demo.png?raw=true)
+![demo](https://github.com/D3REKZHANG/pixelpalette/blob/master/demo.gif?raw=true)
 
 <h2>Implementation Details</h2>
 

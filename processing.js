@@ -12,7 +12,7 @@ export function scalePixels(ctx, imageData, scale, style){
     // convert pixelArr back to single dimensional array
     return pack(ctx, result, imageData);
 }
-
+v
 function unpack(imageData){
     var pixelArr = []
     const w = imageData.width;
@@ -132,7 +132,7 @@ export function colourMatch(ctx, imageData, palette){
                     bestMatch = colour;
                 }
             });
-            
+
             pixelArr[r][c] = bestMatch;
         }
     }

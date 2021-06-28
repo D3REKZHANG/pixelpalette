@@ -12,36 +12,6 @@ export function scalePixels(ctx, imageData, scale, style){
     // convert pixelArr back to single dimensional array
     return pack(ctx, result, imageData);
 }
-v
-function unpack(imageData){
-    var pixelArr = []
-    const w = imageData.width;
-    const h = imageData.height;
-    for(var i=0;i<h;i+=1){
-        var row = []
-        for(var j=0;j<w;j+=1){
-            var base = (i*w+j)*4
-            row.push([imageData.data[base], imageData.data[base+1], imageData.data[base+2]]);
-        }
-        pixelArr.push(row);
-    }
-    return pixelArr;
-}
-
-function pack(ctx, pixelArr,imageData){
-    const temp = ctx.createImageData(imageData.width, imageData.height);
-    var w = imageData.width;
-    for(var i=0;i<pixelArr.length;i+=1){
-        for(var j=0;j<pixelArr[0].length;j+=1){
-            var base = (i*w+j)*4
-            temp.data[base] = pixelArr[i][j][0]
-            temp.data[base+1] = pixelArr[i][j][1]
-            temp.data[base+2] = pixelArr[i][j][2]
-            temp.data[base+3] = 255;
-        }
-    }
-    return temp;
-}
 
 function block(pixels, scale, w, h){
     // Replaces all pixels within a block with top left pixel
@@ -114,18 +84,28 @@ function average(pixels, scale, w, h){
 export function colourMatch(ctx, imageData, palette){
     // convert imageData to 2d array of rgb tuples
     var pixelArr = unpack(imageData);
+    var palette = palette.map((colour) => rgb(colour));
 
-    var result;
-    let w = imageData.width, h = imageData.height;
+    const w = imageData.width, h = imageData.height;
+
+    const cache = {}
+    var cached = 0;
 
     for(var r=0;r<h;r++){
         for(var c=0;c<w;c++){
-            pixel = pixelArr[r][c];
+            const pixel = pixelArr[r][c];
 
-            bestMatch = palette[0];
-            bestDist = distance(palette[0], pixel);
+            // check if in cache
+            if(cache[pixel.toString()]){
+                pixelArr[r][c] = cache[pixel.toString()];
+                cached++;
+                continue;
+            }
 
-            palette.forEach((colour)=>{
+            const bestMatch = palette[0];
+            const bestDist = distance(palette[0], pixel);
+
+            palette.forEach((colour) => {
                 const dist = distance(colour, pixel);
                 if(dist < bestDist){
                     bestDist = dist;
@@ -133,14 +113,52 @@ export function colourMatch(ctx, imageData, palette){
                 }
             });
 
+            // cache and set
+            cache[pixel.toString()] = bestMatch;
             pixelArr[r][c] = bestMatch;
         }
     }
-
     // convert pixelArr back to single dimensional array
-    return pack(ctx, result, imageData);
+    return pack(ctx, pixelArr, imageData);
 }
+
+
+// HELPER FUNCTIONS
 
 function distance(c1,c2){
     return (c2[0] - c1[0])**2 + (c2[1] - c1[1])**2 + (c2[2] - c1[2])**2;
+}
+
+function rgb(hex){
+    return [parseInt(hex.slice(1,3), 16), parseInt(hex.slice(3,5), 16), parseInt(hex.slice(5,7), 16)];
+}
+
+function unpack(imageData){
+    var pixelArr = []
+    const w = imageData.width;
+    const h = imageData.height;
+    for(var i=0;i<h;i+=1){
+        var row = []
+        for(var j=0;j<w;j+=1){
+            var base = (i*w+j)*4
+            row.push([imageData.data[base], imageData.data[base+1], imageData.data[base+2]]);
+        }
+        pixelArr.push(row);
+    }
+    return pixelArr;
+}
+
+function pack(ctx, pixelArr,imageData){
+    const temp = ctx.createImageData(imageData.width, imageData.height);
+    var w = imageData.width;
+    for(var i=0;i<pixelArr.length;i+=1){
+        for(var j=0;j<pixelArr[0].length;j+=1){
+            var base = (i*w+j)*4
+            temp.data[base] = pixelArr[i][j][0]
+            temp.data[base+1] = pixelArr[i][j][1]
+            temp.data[base+2] = pixelArr[i][j][2]
+            temp.data[base+3] = 255;
+        }
+    }
+    return temp;
 }

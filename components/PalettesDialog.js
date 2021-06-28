@@ -1,17 +1,32 @@
-import { DialogContent, DialogActions, DialogTitle, Dialog, TextField, Button, Grid, Typography } from '@material-ui/core'
-import { useState, useEffect } from 'react'
+import { DialogContent, DialogActions, DialogTitle, Dialog, TextField, Button, Grid, CircularProgress } from '@material-ui/core'
+import { useState, useEffect, useRef } from 'react'
 
+import LoadingOverlay from 'react-loading-overlay';
 import Palette from "./Palette.js"
 
 export default function PalettesDialog(props){
 
     const [ link, setLink ] = useState('');
+
     const [ palettes, setPalettes ] = useState([]);
 
-    const handleLinkChange = (e) => setLink(e.target.value);
+    const handleClick = (palette) => {
+        props.setPalette(palette);
+    }
+
+    const handleLinkChange = () => {
+        if (!/^https:\/\/coolors\.co\/([0-9a-fA-F]{6}-)+[0-9a-fA-F]{6}$/.test(link)) return;
+
+        console.log(linkToList(link));
+        props.setPalette(linkToList(link));
+    }
 
     const linkToList = (link) => {
-        return link.split('/').slice(-1)[0].split('-').map((val) => '#' + val);
+        if (/^https:\/\/coolors\.co\/([0-9a-fA-F]{6}-)+[0-9a-fA-F]{6}$/.test(link)) {
+            return link.split('/').slice(-1)[0].split('-').map((val) => '#' + val);
+        } else {
+            return [];
+        }
     };
 
     useEffect(() => {
@@ -24,7 +39,7 @@ export default function PalettesDialog(props){
             "https://coolors.co/d8e2dc-ffe5d9-ffcad4-f4acb7-9d8189",
             "https://coolors.co/003049-d62828-f77f00-fcbf49-eae2b7"
         ];
-        
+
         const arr = [];
         links.forEach((link) => {
             arr.push(linkToList(link));
@@ -33,48 +48,70 @@ export default function PalettesDialog(props){
         setPalettes(arr);
     }, []);
 
+
     return (
-        <Dialog
-            disableBackdropClick
-            disableEscapeKeyDown
-            open={props.open}
+            <Dialog
+                disableBackdropClick
+                disableEscapeKeyDown
+                open={props.open}
+            >
+        <LoadingOverlay
+            active={props.loading}
+            spinner={<CircularProgress />}
+            styles={{
+                overlay: (base) => ({
+                    ...base,
+                    background: 'rgba(0, 0, 0, 0.3)'
+                })
+            }}
         >
-            <DialogTitle>Palettes</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={1} alignItems="center" justify="space-between">
-                    {palettes.map((palette, i)=>{
-                        return (
-                            <Grid item xs="6">
-                                <Palette key={i} palette={palette} />
-                            </Grid>
-                        )
-                    })}
-                </Grid>
-                <Grid container spacing={1} alignItems="center" justify="space-between">
-                    <Grid item xs="10">
-                        <TextField
-                            variant="outlined"
-                            size="small"
-                            id="link"
-                            label="Coolors Link"
-                            fullWidth
-                            onChange={handleLinkChange}
-                            value={link}
-                            style={{ margin: "10px" }}
-                        />
+                <DialogTitle>Palettes</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={1} alignItems="center" justify="space-between">
+                        {palettes.map((palette, i)=>{
+                            return (
+                                <Grid onClick={() => handleClick(palette)} key={i} item xs={6}>
+                                    <Palette palette={palette} />
+                                </Grid>
+                            )
+                        })}
                     </Grid>
-                </Grid>
-                <Grid>
-                    <Grid item xs="6">
-                        <Palette palette={(link !== '') ? linkToList(link) : []} />
+                    <Grid container spacing={2} alignItems="center" justify="space-between">
+                        <Grid item xs={10}>
+                            <TextField
+                                variant="outlined"
+                                size="small"
+                                id="link"
+                                error={(link === '') ? false : !/^https:\/\/coolors\.co\/([0-9a-fA-F]{6}-)+[0-9a-fA-F]{6}$/.test(link)}
+                                label="Coolors Link"
+                                fullWidth
+                                onChange={(e) => setLink(e.target.value)}
+                                value={link}
+                                style={{ margin: "10px" }}
+                            />
+                        </Grid>
+                        <Grid item xs={2}>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={handleLinkChange}
+                            >
+                                Go
+                            </Button>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={props.handleClose} color="primary">
-                    Ok
-                </Button>
-            </DialogActions>
-        </Dialog>
+                    <Grid>
+                        <Grid item xs={6}>
+                            <Palette palette={(link !== '') ? linkToList(link) : []} />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={props.handleClose} color="primary">
+                        Ok
+                    </Button>
+                </DialogActions>
+        </LoadingOverlay>
+            </Dialog>
     );
 }

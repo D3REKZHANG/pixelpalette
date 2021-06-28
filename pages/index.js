@@ -1,11 +1,11 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import { useState, useRef, useEffect } from 'react'
-import { CircularProgress, Button, Grid,} from '@material-ui/core'
-import LoadingOverlay from 'react-loading-overlay';
+import { Button, Grid,} from '@material-ui/core'
 
-import { scalePixels } from "../processing.js";
+import { scalePixels, colourMatch } from "../processing.js";
 
+import Canvas from "../components/Canvas.js"
 import Palette from "../components/Palette.js"
 import SettingsDialog from "../components/SettingsDialog.js"
 import PalettesDialog from "../components/PalettesDialog.js"
@@ -16,6 +16,7 @@ export default function Home() {
     // STATES AND REFS
     const [image, setImage] = useState(null);
     const [cache, setCache] = useState([]);
+    const [colourCache, setColourCache] = useState([]);
 
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [palettesOpen, setPalettesOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function Home() {
     // options
     const [scaleStyle, setScaleStyle] = useState(0);
     const [scale, setScale] = useState(1);
+    const [palette, setPalette] = useState([]);
 
     const canvas = useRef(null);
 
@@ -46,11 +48,9 @@ export default function Home() {
         }
     };
 
-    const handleStyleChange = (e) => setScaleStyle(e.target.value);
-
     // USE EFFECT HOOKS
-    useEffect(()=>{
-        if(image === null) return;
+    useEffect(() => {
+        if (image === null) return;
         const ctx = canvas.current.getContext('2d');
         ctx.drawImage(image,0,0,500,image.height*(500/image.width));
         const imgData = ctx.getImageData(0,0,500,image.height*(500/image.width));
@@ -63,14 +63,31 @@ export default function Home() {
         }
         setLoading(false);
         setScale(1);
+        setPalette([]);
         setCache(arr);
-    },[image]);
+    }, [image]);
 
-    useEffect(()=>{
-        if(image === null) return;
+    useEffect(() => {
+        if (image === null) return;
         const ctx = canvas.current.getContext('2d');
-        ctx.putImageData(cache[scaleStyle][scale],0,0);
+        if (palette.length ===  0)
+            ctx.putImageData(cache[scaleStyle][scale], 0, 0);
+        else
+            ctx.putImageData(colourCache[scaleStyle][scale], 0, 0);
     },[scale, scaleStyle]);
+
+    useEffect(() => {
+        if (palette.length === 0) return;
+        const ctx = canvas.current.getContext('2d');
+        const arr = [[0], [0]];
+        for (var i=1;i<=10;i++) {
+            arr[0].push(colourMatch(ctx, cache[0][i], palette));
+            arr[1].push(colourMatch(ctx, cache[1][i], palette));
+        }
+        setLoading(false);
+        setColourCache(arr);
+        ctx.putImageData(colourMatch(ctx, cache[scaleStyle][scale], palette), 0, 0);
+    }, [palette])
 
 
     return (
@@ -81,36 +98,22 @@ export default function Home() {
             </Head>
 
             <h1>P I X E L P A L E T T E </h1>
-            <input type="file" id="upload" accept="image/*"onChange={handleUpload} style={{display:"none"}}/>
+            <input type="file" id="upload" accept="image/*"onChange={handleUpload} style={{display:"none"}} />
             <Button variant="outlined" color="primary" style={{ margin: "10px" }}> <label for="upload">Select file</label> </Button>
-            <LoadingOverlay
-                active={loading}
-                spinner={<CircularProgress />}
-                styles={{
-                    wrapper: (base) => ({
-                        ...base,
-                        margin: '10px'
-                    }),
-                    overlay: (base) => ({
-                        ...base,
-                        background: 'rgba(0, 0, 0, 0.3)'
-                    })
-                }}
-            >
-                <canvas id="display" width={(image===null)?0:500} height={(image === null)?0:image.height*(500/image.width)} style={{border:((image==null)?0:1)+"px solid #000000"}} ref={canvas}></canvas>
-            </LoadingOverlay>
+
+            <Canvas canvasRef={canvas} loading={loading} image={image} />
 
             <div style={{visibility:(image===null)?"hidden":"visible", width:"350px", margin:"0px 30px"}}>
-                <ScaleSlider scale={scale} setScale={setScale} handleClick={() => setSettings(true)}/>
-                <PalettesDialog open={palettesOpen} handleClose={() => setPalettesOpen(false)}/>
+                <ScaleSlider scale={scale} setScale={setScale} handleClick={() => setSettingsOpen(true)} />
+                <PalettesDialog open={palettesOpen} loading={loading} setLoading={setLoading} setPalette={setPalette} handleClose={() => setPalettesOpen(false)} />
+                <Palette palette={palette} />
                 <Grid container spacing={2} alignItems="center" justify="center">
                     <Grid item>
                         <Button variant="outlined" color="primary" onClick={() => setPalettesOpen(true)}>Choose Palette</Button>
                     </Grid>
                 </Grid>
             </div>
-            <SettingsDialog open={settingsOpen} scaleStyle={scaleStyle} handleChange={(e) => setScaleStyle(e.target.value)} handleClose={() => setSettingsOpen(false)}/>
-            } handleClose={() => setSettingsOpen(false)}/>
+            <SettingsDialog open={settingsOpen} scaleStyle={scaleStyle} handleChange={(e) => setScaleStyle(e.target.value)} handleClose={() => setSettingsOpen(false)} />
         </div>
     )
 }

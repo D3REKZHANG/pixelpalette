@@ -3,7 +3,7 @@ import styles from '../styles/Home.module.css'
 import { useState, useRef, useEffect } from 'react'
 import { Button, Grid,} from '@material-ui/core'
 
-import { scalePixels, colourMatch } from "../processing.js";
+import { scalePixels, colourMatch, convertGrayscale } from "../processing.js";
 
 import Canvas from "../components/Canvas.js"
 import Palette from "../components/Palette.js"
@@ -26,6 +26,7 @@ export default function Home() {
     const [scaleStyle, setScaleStyle] = useState(0);
     const [scale, setScale] = useState(1);
     const [palette, setPalette] = useState([]);
+    const [paletteStyle, setPaletteStyle] = useState(0);
 
     const canvas = useRef(null);
 
@@ -73,22 +74,32 @@ export default function Home() {
         if (palette.length ===  0)
             ctx.putImageData(cache[scaleStyle][scale], 0, 0);
         else
-            ctx.putImageData(colourCache[scaleStyle][scale], 0, 0);
-    },[scale, scaleStyle]);
+            ctx.putImageData(colourCache[scaleStyle][paletteStyle][scale], 0, 0);
+    },[scale, scaleStyle, paletteStyle]);
 
-    useEffect(() => {
-        if (palette.length === 0) return;
+    // other functions
+    
+    const changePalette = async (palette) => {
         const ctx = canvas.current.getContext('2d');
-        const arr = [[0], [0]];
-        for (var i=1;i<=10;i++) {
-            arr[0].push(colourMatch(ctx, cache[0][i], palette));
-            arr[1].push(colourMatch(ctx, cache[1][i], palette));
-        }
-        setLoading(false);
-        setColourCache(arr);
-        ctx.putImageData(colourMatch(ctx, cache[scaleStyle][scale], palette), 0, 0);
-    }, [palette])
-
+        setLoading(true);
+        const arr = [[[0], [0]], [[0], [0]]];
+        new Promise((resolve) => {
+            setTimeout(() => {
+                for (var i=1;i<=10;i++) {
+                    arr[0][0].push(colourMatch(ctx, cache[0][i], palette, 'difference'));
+                    arr[1][0].push(colourMatch(ctx, cache[1][i], palette, 'difference'));
+                    arr[0][1].push(colourMatch(ctx, cache[0][i], palette, 'projection'));
+                    arr[1][1].push(colourMatch(ctx, cache[1][i], palette, 'projection'));
+                }
+                ctx.putImageData(arr[scaleStyle][paletteStyle][scale], 0, 0);
+                resolve();
+            }, 1);
+        }).then(() => {
+            setPalette(palette);
+            setLoading(false);
+            setColourCache(arr);
+        });
+    }
 
     return (
         <div className={styles.container} style={{ background: "#fafbff" }}>
@@ -105,7 +116,7 @@ export default function Home() {
 
             <div style={{visibility:(image===null)?"hidden":"visible", width:"350px", margin:"0px 30px"}}>
                 <ScaleSlider scale={scale} setScale={setScale} handleClick={() => setSettingsOpen(true)} />
-                <PalettesDialog open={palettesOpen} loading={loading} setLoading={setLoading} setPalette={setPalette} handleClose={() => setPalettesOpen(false)} />
+                <PalettesDialog open={palettesOpen} loading={loading} setLoading={setLoading} changePalette={changePalette} handleClose={() => setPalettesOpen(false)} />
                 <Palette palette={palette} />
                 <Grid container spacing={2} alignItems="center" justify="center">
                     <Grid item>
@@ -113,7 +124,13 @@ export default function Home() {
                     </Grid>
                 </Grid>
             </div>
-            <SettingsDialog open={settingsOpen} scaleStyle={scaleStyle} handleChange={(e) => setScaleStyle(e.target.value)} handleClose={() => setSettingsOpen(false)} />
+            <SettingsDialog
+                open={settingsOpen}
+                scaleStyle={scaleStyle}
+                handleChange={(e) => setScaleStyle(parseInt(e.target.value, 10))}
+                paletteStyle={paletteStyle}
+                handleChange2={(e) => setPaletteStyle(parseInt(e.target.value, 10))}
+                handleClose={() => setSettingsOpen(false)} />
         </div>
     )
 }

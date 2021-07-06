@@ -81,41 +81,57 @@ function average(pixels, scale, w, h){
     return pixels;
 }
 
-export function colourMatch(ctx, imageData, palette){
+export function colourMatch(ctx, imageData, palette, type='true'){
     // convert imageData to 2d array of rgb tuples
     var pixelArr = unpack(imageData);
     var palette = palette.map((colour) => rgb(colour));
+    const sortedPalette = sortGrayscale(palette);
 
     const w = imageData.width, h = imageData.height;
 
-    const cache = {}
-    var cached = 0;
-
+    let diff = 0;
     for(var r=0;r<h;r++){
         for(var c=0;c<w;c++){
             const pixel = pixelArr[r][c];
+            
+            let bestMatch = null;
 
-            // check if in cache
-            if(cache[pixel.toString()]){
-                pixelArr[r][c] = cache[pixel.toString()];
-                cached++;
-                continue;
+            bestMatch = palette[0];
+
+            if(type === 'difference'){
+                bestMatch = palette[0];
+                let bestDist = distance(palette[0], pixel);
+
+                palette.forEach((colour) => {
+                    const dist = distance(colour, pixel);
+                    if(dist < bestDist){
+                        bestDist = dist;
+                        bestMatch = colour;
+                    }
+                });
+            }else if(type === 'projection'){
+                const grayed = grayscale(pixelArr[r][c]);
+                bestMatch = sortedPalette[parseInt((grayed[0]/255)*(sortedPalette.length), 10)];
             }
 
-            const bestMatch = palette[0];
-            const bestDist = distance(palette[0], pixel);
-
-            palette.forEach((colour) => {
-                const dist = distance(colour, pixel);
-                if(dist < bestDist){
-                    bestDist = dist;
-                    bestMatch = colour;
-                }
-            });
-
             // cache and set
-            cache[pixel.toString()] = bestMatch;
             pixelArr[r][c] = bestMatch;
+        }
+    }
+    console.log(diff);
+    // convert pixelArr back to single dimensional array
+    return pack(ctx, pixelArr, imageData);
+}
+
+export function convertGrayscale(ctx, imageData){
+    // convert imageData to 2d array of rgb tuples
+    var pixelArr = unpack(imageData);
+
+    const w = imageData.width, h = imageData.height;
+
+    for(var r=0;r<h;r++){
+        for(var c=0;c<w;c++){
+            pixelArr[r][c] = grayscale(pixelArr[r][c]);
         }
     }
     // convert pixelArr back to single dimensional array
@@ -131,6 +147,24 @@ function distance(c1,c2){
 
 function rgb(hex){
     return [parseInt(hex.slice(1,3), 16), parseInt(hex.slice(3,5), 16), parseInt(hex.slice(5,7), 16)];
+}
+
+function hex(rgb){
+    return '#'+Math.round(rgb[0]).toString(16)+Math.round(rgb[1]).toString(16)+Math.round(rgb[2]).toString(16);
+}
+
+function grayscale(rgb, weighted = true){
+    const avg = (weighted) ? 0.299*rgb[0] + 0.587*rgb[1] + 0.114*rgb[2] : (rgb[0] + rgb[1] + rgb[2])/3;
+
+    return [avg, avg, avg];
+}
+
+function sortGrayscale(palette){
+    const toSort = palette.map((colour) => ({og: colour, grey: grayscale(colour)}));
+
+    const sorted = toSort.sort((a,b) => (a.grey[0] > b.grey[0]) ? 1 : -1);
+
+    return sorted.map((obj) => obj.og);
 }
 
 function unpack(imageData){

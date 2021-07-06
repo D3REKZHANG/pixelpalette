@@ -4,21 +4,23 @@ import { useState, useEffect, useRef } from 'react'
 import LoadingOverlay from 'react-loading-overlay';
 import Palette from "./Palette.js"
 
+import { sortGrayscale } from '../processing.js'
+
 export default function PalettesDialog(props){
 
     const [ link, setLink ] = useState('');
-
     const [ palettes, setPalettes ] = useState([]);
 
+
     const handleClick = (palette) => {
-        props.setPalette(palette);
+        props.changePalette(palette);
     }
 
     const handleLinkChange = () => {
         if (!/^https:\/\/coolors\.co\/([0-9a-fA-F]{6}-)+[0-9a-fA-F]{6}$/.test(link)) return;
 
         console.log(linkToList(link));
-        props.setPalette(linkToList(link));
+        props.changePalette(linkToList(link));
     }
 
     const linkToList = (link) => {
@@ -50,21 +52,21 @@ export default function PalettesDialog(props){
 
 
     return (
-            <Dialog
-                disableBackdropClick
-                disableEscapeKeyDown
-                open={props.open}
-            >
-        <LoadingOverlay
-            active={props.loading}
-            spinner={<CircularProgress />}
-            styles={{
-                overlay: (base) => ({
-                    ...base,
-                    background: 'rgba(0, 0, 0, 0.3)'
-                })
-            }}
+        <Dialog
+            disableBackdropClick
+            disableEscapeKeyDown
+            open={props.open}
         >
+            <LoadingOverlay
+                active={props.loading}
+                spinner={<CircularProgress />}
+                styles={{
+                    overlay: (base) => ({
+                        ...base,
+                        background: 'rgba(0, 0, 0, 0.3)'
+                    })
+                }}
+            >
                 <DialogTitle>Palettes</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={1} alignItems="center" justify="space-between">
@@ -88,6 +90,7 @@ export default function PalettesDialog(props){
                                 onChange={(e) => setLink(e.target.value)}
                                 value={link}
                                 style={{ margin: "10px" }}
+                                autoComplete="off"
                             />
                         </Grid>
                         <Grid item xs={2}>
@@ -111,7 +114,7 @@ export default function PalettesDialog(props){
                         Ok
                     </Button>
                 </DialogActions>
-        </LoadingOverlay>
-            </Dialog>
+            </LoadingOverlay>
+        </Dialog>
     );
 }

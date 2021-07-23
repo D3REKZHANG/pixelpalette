@@ -6,11 +6,11 @@ Web-based image pixelator with colour palette selection for pixel artists and ga
 
 <h2>Implementation Details</h2>
 
-Built with React, Next.js, and Material Ui. 
+Built with **React**, **Next.js**, and **Material UI**. 
 
-Using this project as an opportunity to learn Next.js and Material UI. So far, they are awesome libraries that make writing React apps so much faster!
+Allows users upload their own image and adjust pixel resolution. There are two pixelation options, Sharp and Soft.
 
-I have a processing.js file found at the root path that handles all pixel manipulation logic. I will admit that working with Javascript's canvas and built-in ImageData class is more annoying than I anticipated. It's a great learning opportunity though and I think I have a deeper understanding of Javascript's core features because of it.
+Colour palettes change each pixel in the image to the closest colour in the palette. Contrast option goes by closest true colour difference, while vibrant projects the image into greyscale and picks according to brightness.
 
 <h2>License</h2>
 

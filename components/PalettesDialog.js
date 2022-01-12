@@ -1,10 +1,8 @@
 import { DialogContent, DialogActions, DialogTitle, Dialog, TextField, Button, Grid, CircularProgress } from '@material-ui/core'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 import LoadingOverlay from 'react-loading-overlay';
 import Palette from "./Palette.js"
-
-import { sortGrayscale } from '../processing.js'
 
 export default function PalettesDialog(props){
 

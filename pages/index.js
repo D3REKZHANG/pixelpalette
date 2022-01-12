@@ -3,7 +3,7 @@ import styles from '../styles/Home.module.css'
 import { useState, useRef, useEffect } from 'react'
 import { Button, Grid,} from '@material-ui/core'
 
-import { scalePixels, colourMatch, convertGrayscale } from "../processing.js";
+import { scalePixels, colourMatch } from "../processing.js";
 
 import Canvas from "../components/Canvas.js"
 import Palette from "../components/Palette.js"
@@ -130,7 +130,8 @@ export default function Home() {
                 handleChange={(e) => setScaleStyle(parseInt(e.target.value, 10))}
                 paletteStyle={paletteStyle}
                 handleChange2={(e) => setPaletteStyle(parseInt(e.target.value, 10))}
-                handleClose={() => setSettingsOpen(false)} />
+                handleClose={() => setSettingsOpen(false)}
+            />
         </div>
     )
 }

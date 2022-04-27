@@ -71,7 +71,7 @@ export default function Home() {
     useEffect(() => {
         if (image === null) return;
         const ctx = canvas.current.getContext('2d');
-        if (palette.length ===  0)
+        if (palette.length === 0)
             ctx.putImageData(cache[scaleStyle][scale], 0, 0);
         else
             ctx.putImageData(colourCache[scaleStyle][paletteStyle][scale], 0, 0);
@@ -82,23 +82,20 @@ export default function Home() {
     const changePalette = async (palette) => {
         const ctx = canvas.current.getContext('2d');
         setLoading(true);
-        const arr = [[[0], [0]], [[0], [0]]];
-        new Promise((resolve) => {
-            setTimeout(() => {
-                for (var i=1;i<=10;i++) {
-                    arr[0][0].push(colourMatch(ctx, cache[0][i], palette, 'difference'));
-                    arr[1][0].push(colourMatch(ctx, cache[1][i], palette, 'difference'));
-                    arr[0][1].push(colourMatch(ctx, cache[0][i], palette, 'projection'));
-                    arr[1][1].push(colourMatch(ctx, cache[1][i], palette, 'projection'));
-                }
-                ctx.putImageData(arr[scaleStyle][paletteStyle][scale], 0, 0);
-                resolve();
-            }, 1);
-        }).then(() => {
-            setPalette(palette);
-            setLoading(false);
-            setColourCache(arr);
-        });
+        const process = async () => {
+          const arr = [[[0], [0]], [[0], [0]]];
+          for (var i=1;i<=10;i++) {
+            arr[0][0].push(colourMatch(ctx, cache[0][i], palette, 'difference'));
+            arr[1][0].push(colourMatch(ctx, cache[1][i], palette, 'difference'));
+            arr[0][1].push(colourMatch(ctx, cache[0][i], palette, 'projection'));
+            arr[1][1].push(colourMatch(ctx, cache[1][i], palette, 'projection'));
+          }
+          ctx.putImageData(arr[scaleStyle][paletteStyle][scale], 0, 0);
+          setPalette(palette);
+          setLoading(false);
+          setColourCache(arr);
+        }
+        process();
     }
 
     return (

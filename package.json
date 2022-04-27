@@ -1,5 +1,5 @@
 {
-  "name": "colourpixel",
+  "name": "pixelpalette",
   "version": "0.1.0",
   "private": true,
   "proxy": "localhost:5000",

@@ -27,11 +27,11 @@ function block(pixels, scale, w, h){
             } else {
                 for(var rr=half-1;rr<=half;rr++){
                     for(var cc=half-1;cc<=half;cc++){
-                            const pixel = pixelArr[Math.min(r+rr, h-1)][Math.min(c+cc, w-1)]
-                            red += pixel[0];
-                            blue += pixel[1];
-                            green += pixel[2];
-                            cnt++;
+                        const pixel = pixelArr[Math.min(r+rr, h-1)][Math.min(c+cc, w-1)]
+                        red += pixel[0];
+                        blue += pixel[1];
+                        green += pixel[2];
+                        cnt++;
                     }
                 }
                 pivot = [red/cnt, blue/cnt, green/cnt];
@@ -118,7 +118,7 @@ export function colourMatch(ctx, imageData, palette, type='true'){
             pixelArr[r][c] = bestMatch;
         }
     }
-    console.log(diff);
+    //console.log(diff);
     // convert pixelArr back to single dimensional array
     return pack(ctx, pixelArr, imageData);
 }

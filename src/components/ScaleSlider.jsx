@@ -1,5 +1,5 @@
-import { Grid, Slider, Typography, IconButton } from '@material-ui/core'
-import SettingsIcon from '@material-ui/icons/Settings';
+import { Grid, Slider, Typography, IconButton } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export default function ScaleSlider(props){
     return (
@@ -10,7 +10,7 @@ export default function ScaleSlider(props){
             <Grid item xs>
                 <Slider
                     value={typeof props.scale === 'number' ? props.scale : 0}
-                    onChange={(e, newval) => props.setScale(newval)}
+                    onChange={(_, newval) => props.setScale(newval)}
                     aria-labelledby="discrete-slider"
                     valueLabelDisplay="auto"
                     marks

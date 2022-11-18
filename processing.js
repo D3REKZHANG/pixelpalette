@@ -19,7 +19,7 @@ function block(pixels, scale, w, h){
     for(var r=0;r<h;r+=scale){
         for(var c=0;c<w;c+=scale){
             let cnt = 0, red = 0, green = 0, blue = 0;
-            const pivot = [0,0,0];
+            let pivot = [0,0,0];
             const half = parseInt(scale/2, 10);
 
             if(scale%2 == 1){

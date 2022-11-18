@@ -1,8 +1,8 @@
-import { DialogContent, DialogActions, DialogTitle, Dialog, TextField, Button, Grid, CircularProgress } from '@material-ui/core'
+import { DialogContent, DialogActions, DialogTitle, Dialog, TextField, Button, Grid, CircularProgress } from '@mui/material'
 import { useState, useEffect } from 'react'
 
 import LoadingOverlay from 'react-loading-overlay';
-import Palette from "./Palette.js"
+import Palette from "./Palette"
 
 export default function PalettesDialog(props){
 

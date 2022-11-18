@@ -1,19 +1,21 @@
 {
   "name": "pixelpalette",
-  "version": "0.1.0",
-  "private": true,
-  "proxy": "localhost:5000",
+  "version": "0.0.3",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@material-ui/core": "^4.11.3",
-    "@material-ui/icons": "^4.11.2",
-    "next": "^11.0.0",
-    "react": "17.0.1",
-    "react-dom": "17.0.1",
-    "react-loading-overlay": "^1.0.1"
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/icons-material": "^5.10.14",
+    "@mui/material": "^5.10.14",
+    "@vitejs/plugin-react": "^2.2.0",
+    "mui": "^0.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-loading-overlay": "^1.0.1",
+    "vite": "^3.2.4"
   }
 }

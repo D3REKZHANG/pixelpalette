@@ -1,4 +1,4 @@
-import { RadioGroup, Radio, DialogContent, DialogActions, DialogTitle, Dialog, Button, Grid, Typography, Select, MenuItem, FormControlLabel } from '@material-ui/core'
+import { RadioGroup, Radio, DialogContent, DialogActions, DialogTitle, Dialog, Button, Grid, Typography, FormControlLabel } from '@mui/material';
 
 export default function SettingsDialog(props){
 

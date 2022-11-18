@@ -1,15 +1,6 @@
-import { Grid, Card, CardContent, Typography} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles';
-
-const useStyles = makeStyles({
-    title: {
-        fontSize: 14,
-    },
-});
+import { Grid, Card, CardContent } from '@mui/material'
 
 export default function Palette(props){
-
-    const classes = useStyles();
     
     return (
         <Card variant="outlined" style={{ minWidth: "100px", margin: "10px" }}>

@@ -10,19 +10,45 @@ export function scalePixels(ctx, imageData, scale, style){
     }
 
     // convert pixelArr back to single dimensional array
-    return pack(ctx, result, imageData);
+    return pack(ctx, result, w, h);
 }
 
-function block(pixels, scale, w, h){
-    // Replaces all pixels within a block with top left pixel
+export function scalePixelsAll(ctx, imageData, style) {
+    // convert imageData to 2d array of rgb tuples
+    // var pixelArr = unpack(imageData);
+
+    let w = imageData.width, h = imageData.height;
+    const scale = (pA, sc, w, h) => {
+      return (style==="block") ? block(unpack(pA), sc, w, h) : average(unpack(pA), sc, w, h);
+    }
+    const r_2x2 = scale(imageData, 2, w, h);
+    const r_3x3 = scale(imageData, 3, w, h);
+    const r_5x5 = scale(imageData, 5, w, h);
+    const r_7x7 = scale(imageData, 7, w, h);
+
+    const opt_scale = (pA, sc, w, h) => {
+      return (style==="block") ? block(copy(pA), sc, w, h) : average(copy(pA), sc, w, h);
+    }
+    const r_4x4 = opt_scale(r_2x2, 2, w, h, 2);
+    const r_8x8 = opt_scale(r_4x4, 2, w, h, 2);
+    const r_6x6 = opt_scale(r_3x3, 2, w, h, 2);
+    const r_9x9 = opt_scale(r_3x3, 3, w, h, 3);
+    const r_10x10 = opt_scale(r_5x5, 2, w, h, 2);
+
+    // convert pixelArr back to single dimensional array
+    return [r_2x2, r_3x3, r_4x4, r_5x5, r_6x6, r_7x7, r_8x8, r_9x9, r_10x10].map((result)=> pack(ctx, result, w, h));
+}
+
+function block(pixels, scale, w, h, mult=1){
+    // Replaces all pixels within a block with center pixel
     var pixelArr = pixels;
     for(var r=0;r<h;r+=scale){
         for(var c=0;c<w;c+=scale){
             let cnt = 0, red = 0, green = 0, blue = 0;
             let pivot = [0,0,0];
-            const half = parseInt(scale/2, 10);
+            const half = parseInt((scale*mult)/2, 10);
 
-            if(scale%2 == 1){
+            if((scale*mult)%2 == 1){
                 pivot = pixelArr[Math.min(r+half, h-1)][Math.min(c+half, w-1)]
             } else {
                 for(var rr=half-1;rr<=half;rr++){
@@ -51,14 +77,13 @@ function block(pixels, scale, w, h){
     return pixels;
 }
 
-function average(pixels, scale, w, h){
-    // Replaces all pixels within a block with top left pixel
+function average(pixels, scale, w, h, mult=1){
     var pixelArr = pixels;
     for(var r=0;r<h;r+=scale){
         for(var c=0;c<w;c+=scale){
-            let cnt = 0, red = 0, green = 0, blue = 0;
-            for(var rr=0;rr<scale;rr++){
-                for(var cc=0;cc<scale;cc++){
+            let cnt=0, red = 0, green = 0, blue = 0;
+            for(var rr=0;rr<scale*mult;rr+=mult){
+                for(var cc=0;cc<scale*mult;cc+=mult){
                     if(r+rr < h && c+cc < w){
                         red += pixelArr[r+rr][c+cc][0];
                         blue += pixelArr[r+rr][c+cc][1];
@@ -67,12 +92,11 @@ function average(pixels, scale, w, h){
                     }
                 }
             }
-            for(var rr=0;rr<scale;rr++){
-                for(var cc=0;cc<scale;cc++){
+            const colour = [red/cnt, blue/cnt, green/cnt, 255];
+            for(var rr=0;rr<scale*mult;rr++){
+                for(var cc=0;cc<scale*mult;cc++){
                     if(r+rr < h && c+cc < w){
-                        pixelArr[r+rr][c+cc][0] = red/cnt;
-                        pixelArr[r+rr][c+cc][1] = blue/cnt;
-                        pixelArr[r+rr][c+cc][2] = green/cnt;
+                        pixelArr[r+rr][c+cc] = colour;
                     }
                 }
             }
@@ -120,7 +144,7 @@ export function colourMatch(ctx, imageData, palette, type='true'){
     }
     //console.log(diff);
     // convert pixelArr back to single dimensional array
-    return pack(ctx, pixelArr, imageData);
+    return pack(ctx, pixelArr, w, h);
 }
 
 export function convertGrayscale(ctx, imageData){
@@ -135,7 +159,7 @@ export function convertGrayscale(ctx, imageData){
         }
     }
     // convert pixelArr back to single dimensional array
-    return pack(ctx, pixelArr, imageData);
+    return pack(ctx, pixelArr, w, h);
 }
 
 
@@ -167,6 +191,31 @@ function sortGrayscale(palette){
     return sorted.map((obj) => obj.og);
 }
 
+function copy(arr) {
+    var pixelArr = [];
+    for(var i=0;i<arr.length;i++){
+        var row = []
+        for(var j=0;j<arr[i].length;j++){
+            row.push([...arr[i][j]]);
+        }
+        pixelArr.push(row);
+    }
+    return pixelArr;
+}
+
+function equals(a, b) {
+  for(let i=0;i<a.length;i++){
+    for(let j=0;j<a[0].length; j++){
+      const aa = a[i][j];
+      const bb = b[i][j];
+      if(aa[0] !== bb[0] || aa[1] !== bb[1] || aa[2] !== bb[2]){
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 function unpack(imageData){
     var pixelArr = []
     const w = imageData.width;
@@ -182,9 +231,8 @@ function unpack(imageData){
     return pixelArr;
 }
 
-function pack(ctx, pixelArr,imageData){
-    const temp = ctx.createImageData(imageData.width, imageData.height);
-    var w = imageData.width;
+function pack(ctx, pixelArr, w, h){
+    const temp = ctx.createImageData(w, h);
     for(var i=0;i<pixelArr.length;i+=1){
         for(var j=0;j<pixelArr[0].length;j+=1){
             var base = (i*w+j)*4

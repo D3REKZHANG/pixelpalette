@@ -2,7 +2,7 @@ import styles from './Home.module.css';
 import { useState, useRef, useEffect } from 'react';
 import { Button, Grid,} from '@mui/material';
 
-import { scalePixels, colourMatch } from "../../processing.js";
+import { scalePixels, colourMatch, scalePixelsAll } from "../../processing.js";
 
 import Canvas from "../components/Canvas";
 import Palette from "../components/Palette";
@@ -56,7 +56,13 @@ const Home = () => {
     const imgData = ctx.getImageData(0,0,500,image.height*(500/image.width));
 
     // cache
-    const arr = [[0], [0]];
+    /*
+    const arr = [
+      [0, ...scalePixelsAll(ctx, imgData, "block")],
+      [0, ...scalePixelsAll(ctx, imgData, "average")]
+    ];
+    */
+    const arr = [[-1], [-1]];
     for (var i=1;i<=10;i++) {
       arr[0].push(scalePixels(ctx, imgData, i, "block"));
       arr[1].push(scalePixels(ctx, imgData, i, "average"));
@@ -117,7 +123,7 @@ const Home = () => {
             </Grid>
           </Grid>
         </div>
-      }
+    }
       <SettingsDialog
         open={settingsOpen}
         scaleStyle={scaleStyle}
@@ -125,7 +131,7 @@ const Home = () => {
         paletteStyle={paletteStyle}
         handleChange2={(e) => setPaletteStyle(parseInt(e.target.value, 10))}
         handleClose={() => setSettingsOpen(false)}
-        />
+      />
     </div>
   )
 }

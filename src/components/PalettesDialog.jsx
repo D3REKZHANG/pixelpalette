@@ -14,15 +14,19 @@ export default function PalettesDialog(props){
         props.changePalette(palette);
     }
 
+    const validate = (link) => {
+      return (/^https:\/\/coolors\.co\/(palettes\/)?([0-9a-fA-F]{6}-)+[0-9a-fA-F]{6}$/.test(link));
+    }
+
     const handleLinkChange = () => {
-        if (!/^https:\/\/coolors\.co\/([0-9a-fA-F]{6}-)+[0-9a-fA-F]{6}$/.test(link)) return;
+        if (validate(link)) return;
 
         console.log(linkToList(link));
         props.changePalette(linkToList(link));
     }
 
     const linkToList = (link) => {
-        if (/^https:\/\/coolors\.co\/([0-9a-fA-F]{6}-)+[0-9a-fA-F]{6}$/.test(link)) {
+        if (validate(link)) {
             return link.split('/').slice(-1)[0].split('-').map((val) => '#' + val);
         } else {
             return [];
@@ -82,7 +86,7 @@ export default function PalettesDialog(props){
                                 variant="outlined"
                                 size="small"
                                 id="link"
-                                error={(link === '') ? false : !/^https:\/\/coolors\.co\/([0-9a-fA-F]{6}-)+[0-9a-fA-F]{6}$/.test(link)}
+                                error={(link === '') ? false : !validate(link)}
                                 label="Coolors Link"
                                 fullWidth
                                 onChange={(e) => setLink(e.target.value)}

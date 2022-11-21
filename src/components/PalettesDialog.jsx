@@ -21,7 +21,6 @@ export default function PalettesDialog(props){
     const handleLinkChange = () => {
         if (validate(link)) return;
 
-        console.log(linkToList(link));
         props.changePalette(linkToList(link));
     }
 

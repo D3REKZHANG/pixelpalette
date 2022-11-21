@@ -113,7 +113,6 @@ export function colourMatch(ctx, imageData, palette, type='true'){
 
     const w = imageData.width, h = imageData.height;
 
-    let diff = 0;
     for(var r=0;r<h;r++){
         for(var c=0;c<w;c++){
             const pixel = pixelArr[r][c];
@@ -135,14 +134,13 @@ export function colourMatch(ctx, imageData, palette, type='true'){
                 });
             }else if(type === 'projection'){
                 const grayed = grayscale(pixelArr[r][c]);
-                bestMatch = sortedPalette[parseInt((grayed[0]/255)*(sortedPalette.length), 10)];
+                bestMatch = sortedPalette[parseInt((Math.min((grayed[0]/255), 0.99)*sortedPalette.length), 10)];
             }
 
             // cache and set
             pixelArr[r][c] = bestMatch;
         }
     }
-    //console.log(diff);
     // convert pixelArr back to single dimensional array
     return pack(ctx, pixelArr, w, h);
 }
@@ -233,9 +231,9 @@ function unpack(imageData){
 
 function pack(ctx, pixelArr, w, h){
     const temp = ctx.createImageData(w, h);
-    for(var i=0;i<pixelArr.length;i+=1){
-        for(var j=0;j<pixelArr[0].length;j+=1){
-            var base = (i*w+j)*4
+    for(var i=0;i<pixelArr.length;i++){
+        for(var j=0;j<pixelArr[0].length;j++){
+            const base = (i*w+j)*4
             temp.data[base] = pixelArr[i][j][0]
             temp.data[base+1] = pixelArr[i][j][1]
             temp.data[base+2] = pixelArr[i][j][2]
